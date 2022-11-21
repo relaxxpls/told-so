@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ["eslint-config-web"],
+  extends: ["eslint-config-web", "next/core-web-vitals"],
   overrides: [
     {
       files: ["**/*.ts", "**/*.tsx"],
