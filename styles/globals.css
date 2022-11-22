@@ -5,15 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .container-basic {
-    @apply flex flex-col items-center justify-between gap-4 rounded-3xl border border-neutral bg-white/5 p-4;
-  }
-}
-
 body {
   background: #000000;
   color: white;
-  overflow-x: hidden;
-  font: ;
+  overflow: auto;
+  font-family: "Montserrat", sans-serif;
 }
