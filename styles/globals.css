@@ -8,6 +8,16 @@
 body {
   background: #000000;
   color: white;
-  overflow: auto;
+  min-height: 100vh;
   font-family: "Montserrat", sans-serif;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #90909065;
+  border-radius: 0.5rem;
+}
+
+*::-webkit-scrollbar {
+  width: 0.375rem;
+  height: 0.375rem;
 }
