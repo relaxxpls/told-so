@@ -4,15 +4,21 @@ import type { FC } from "react";
 
 export type PostProps = {
   address: string;
+  id: number;
   title: string;
   body: string;
   timestamp: number;
 };
 
-const Post: FC<PostProps> = ({ title, body, address, timestamp }) => (
-  <div className="card border border-white/10 max-sm:card-compact">
+const Post: FC<PostProps> = ({ title, body, address, id, timestamp }) => (
+  <Link
+    href={`/${address}/${id}`}
+    className="card border border-white/10 max-sm:card-compact"
+  >
     <div className="card-body">
-      <div className="card-title">{title}</div>
+      <div className="link-hover link-accent link card-title text-2xl">
+        {title}
+      </div>
 
       <span className="text-xs text-neutral-content">
         📝{" "}
@@ -29,7 +35,7 @@ const Post: FC<PostProps> = ({ title, body, address, timestamp }) => (
 
       <p className="font-serif tracking-wider">{body}</p>
     </div>
-  </div>
+  </Link>
 );
 
 export default Post;

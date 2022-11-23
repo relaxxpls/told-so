@@ -1,4 +1,7 @@
-# `Told-So`
+# `Told.So` - Remember, I Told So?
+
+"Solidify your reputation as a trusted source of information by sharing your predictions with the world."
+-- Github Copilot
 
 ## Features
 
