@@ -1,26 +1,48 @@
+import deployments from "@told-so/contracts/deployments.json";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useContract, useSigner } from "wagmi";
 
-import postsData from "../assets/data/posts";
 import Post, { type PostProps } from "../components/Post";
+
+import type { ToldSo } from "@told-so/contracts/types";
 
 const Home = () => {
   const { address } = useAccount();
   const { data: signer } = useSigner();
-  const [posts, setPosts] = useState<PostProps[]>(postsData);
+  const [posts, setPosts] = useState<PostProps[]>([]);
 
   const handleClick = () => {
     //
   };
 
+  const toldSo = useContract<ToldSo>({
+    contractInterface: deployments.contracts.ToldSo.abi,
+    addressOrName: deployments.contracts.ToldSo.address,
+  });
+
   useEffect(() => {
-    const getPosts = () => {
-      // const posts =
+    const getPosts = async () => {
+      if (!toldSo || !address) return;
+      try {
+        const myPosts = await toldSo.getPosts(address);
+        setPosts(
+          myPosts.map(({ title, body, media, timestamp }, id) => ({
+            address,
+            id,
+            title,
+            body,
+            media,
+            timestamp: timestamp.toNumber(),
+          }))
+        );
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     getPosts();
-  }, []);
+  }, [address, toldSo]);
 
   return (
     <>
@@ -44,18 +66,14 @@ const Home = () => {
         Post 🚀
       </button>
 
-      <span className="mt-8 font-brand text-4xl font-semibold tracking-widest">
-        My Posts
-      </span>
+      {posts.length && (
+        <span className="mt-8 font-brand text-4xl font-semibold tracking-widest">
+          My Posts
+        </span>
+      )}
+
       {posts.map((post) => (
-        <Post
-          key={post.title}
-          id={post.id}
-          address={post.address}
-          title={post.title}
-          body={post.body}
-          timestamp={post.timestamp}
-        />
+        <Post key={`${post.address} ${post.id}`} {...post} />
       ))}
     </>
   );

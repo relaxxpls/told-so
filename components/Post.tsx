@@ -7,6 +7,7 @@ export type PostProps = {
   id: number;
   title: string;
   body: string;
+  media: string;
   timestamp: number;
 };
 
