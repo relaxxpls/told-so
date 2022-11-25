@@ -1,48 +1,36 @@
 import deployments from "@told-so/contracts/deployments.json";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useAccount, useContract, useSigner } from "wagmi";
 
-import Post, { type PostProps } from "../components/Post";
+import Posts from "../components/Posts";
 
 import type { ToldSo } from "@told-so/contracts/types";
 
+type FormValues = {
+  title: string;
+  body?: string;
+  media?: string;
+};
+
 const Home = () => {
-  const { address } = useAccount();
-  const { data: signer } = useSigner();
-  const [posts, setPosts] = useState<PostProps[]>([]);
-
-  const handleClick = () => {
-    //
-  };
-
   const toldSo = useContract<ToldSo>({
     contractInterface: deployments.contracts.ToldSo.abi,
     addressOrName: deployments.contracts.ToldSo.address,
   });
+  const { address } = useAccount();
+  const { data: signer } = useSigner();
+  const { register, handleSubmit, formState } = useForm<FormValues>();
 
-  useEffect(() => {
-    const getPosts = async () => {
-      if (!toldSo || !address) return;
-      try {
-        const myPosts = await toldSo.getPosts(address);
-        setPosts(
-          myPosts.map(({ title, body, media, timestamp }, id) => ({
-            address,
-            id,
-            title,
-            body,
-            media,
-            timestamp: timestamp.toNumber(),
-          }))
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const createPost = async (data: FormValues) => {
+    if (!signer) throw Error("Connect your wallet to create a post");
+    const tx = await toldSo
+      .connect(signer)
+      .createPost(data.title, data.body ?? "", data.media ?? "");
+    await tx.wait();
+  };
 
-    getPosts();
-  }, [address, toldSo]);
+  if (!address) return null;
 
   return (
     <>
@@ -52,29 +40,38 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <textarea
-        className="textarea w-full border border-white/10 bg-transparent font-serif text-xl tracking-wider"
-        placeholder="What's on your mind?"
-        rows={5}
-      />
+      <form onSubmit={handleSubmit(createPost)} className="space-y-4">
+        <input
+          type="text"
+          className="input w-full border-b-white/10 bg-transparent font-serif text-2xl tracking-wider"
+          placeholder="What's on your mind?"
+          {...register("body")}
+        />
+        <textarea
+          className="textarea w-full border-b-white/10 bg-transparent font-serif text-lg tracking-wider"
+          placeholder="Talk about it..."
+          rows={5}
+          {...register("body")}
+        />
+        {formState.errors.body && (
+          <span className="label text-red-400">
+            {formState.errors.body.message}
+          </span>
+        )}
 
-      <button
-        type="button"
-        className="btn-primary btn self-end"
-        onClick={handleClick}
-      >
-        Post 🚀
-      </button>
+        <button type="submit" className="btn-primary btn self-end">
+          Post 🚀
+        </button>
+      </form>
 
-      {posts.length && (
-        <span className="mt-8 font-brand text-4xl font-semibold tracking-widest">
-          My Posts
-        </span>
-      )}
-
-      {posts.map((post) => (
-        <Post key={`${post.address} ${post.id}`} {...post} />
-      ))}
+      {address ? (
+        <>
+          <span className="mt-8 font-brand text-4xl font-semibold tracking-widest">
+            My Posts
+          </span>
+          <Posts address={address} />
+        </>
+      ) : null}
     </>
   );
 };
