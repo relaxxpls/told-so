@@ -45,8 +45,14 @@ const Home = () => {
           type="text"
           className="input w-full border-b-white/10 bg-transparent font-serif text-2xl tracking-wider"
           placeholder="What's on your mind?"
-          {...register("body")}
+          {...register("title", { required: true })}
         />
+        {formState.errors.title && (
+          <span className="label text-red-400">
+            {formState.errors.title.message}
+          </span>
+        )}
+
         <textarea
           className="textarea w-full border-b-white/10 bg-transparent font-serif text-lg tracking-wider"
           placeholder="Talk about it..."
